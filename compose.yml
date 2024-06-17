@@ -1,0 +1,32 @@
+services:
+
+  postgres-db:
+    image: postgres:16.2
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=certificates-db
+    ports:
+      - 5432:5432
+    networks:
+      - flask-app
+
+  certificates-app:
+    build: 
+      context:  .
+    ports:
+      - 3000:3000
+    restart: always
+    depends_on:
+      - postgres-db
+    environment:
+      - POSTGRES_HOST=postgres-db
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=certificates-db
+    networks:
+      - flask-app
+
+networks:
+  flask-app:
