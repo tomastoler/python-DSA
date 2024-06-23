@@ -10,3 +10,12 @@ git clone <repo>
 docker compose up --build -d
 ```
 
+## Routes
+```yml
+app
+  > auth
+    > login
+    > sign-up
+    > logout
+  > notes
+```

@@ -4,6 +4,8 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 import os
 
+from .data.users import get_user_by_id
+
 load_dotenv()
 
 db = SQLAlchemy()
@@ -20,24 +22,27 @@ def create_app():
     print(f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_DATABASE}')
     db.init_app(app)
     
-    from .routes.views import views
+    # routes
+    from .routes.notes import notes
     from .routes.auth import auth
     
-    app.register_blueprint(views, url_prefix='/')
+    app.register_blueprint(notes, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/auth')
     
+    # db
     from .models import User, Certificate
     
     with app.app_context():
         db.create_all()
     
+    # authentication
     login_manager = LoginManager()
     login_manager.login_view = 'auth.unauthorized'
     login_manager.init_app(app)
     
     @login_manager.user_loader
     def load_user(id):
-        return User.query.get(int(id))
+        return get_user_by_id(int(id))
     
     return app
 
