@@ -3,7 +3,7 @@ from ..models import User
 from .. import db
 from ..data.users import add_user, get_user_by_email
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 
 auth = Blueprint('auth', __name__)
@@ -15,23 +15,16 @@ def sign_up():
     email = data.get('email')
     password = data.get('password')
     role = "CLIENT"
-    hashed_password = generate_password_hash(password, method="scrypt")
     
-    print('len hashed-password -> ' + str(len(hashed_password)))
-    
+    # existing_user = get_user_by_email(email)
     existing_user = get_user_by_email(email)
-    
-    if existing_user:
-        return { "error": "email or password mismatch"}, 400
-    try: 
-        if not existing_user:
-            new_user: User = add_user(name, email, password, role)
-        
-            login_user(new_user, remember=True)
-            return { "new user": new_user.to_dict() }
-    except:
-        return { "error": "error" }
 
+    if existing_user:
+        return { "error": "email taken"}, 400
+    
+    new_user: User = add_user(name, email, password, role)
+    login_user(new_user, remember=True)
+    return { "new user": new_user.to_dict() }
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -39,7 +32,7 @@ def login():
     email = data.get('email')
     password = data.get('password')
     
-    existing_user = get_user_by_email(email)
+    existing_user: User = get_user_by_email(email)
     
     if existing_user and check_password_hash(existing_user.password, password):
         login_user(existing_user, remember=True)
@@ -47,13 +40,19 @@ def login():
     
     return { "error": "error" }
 
-
 @auth.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
     return '<p>Logout</p>'
 
+@auth.route('/upgrade', methods=['POST'])
+@login_required
+def upgrade():
+    existing_user: User = User.query.filter_by(email=current_user.email).first()
+    existing_user.role = 'ADMIN'
+    db.session.commit()
+    return { "message": "User updated successfully" }, 200
 
 @auth.route('/unauthorized')
 def unauthorized():

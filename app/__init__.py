@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 import os
 
-from .data.users import get_user_by_id
 
 load_dotenv()
 
@@ -42,7 +41,7 @@ def create_app():
     
     @login_manager.user_loader
     def load_user(id):
-        return get_user_by_id(int(id))
+        return User.query.get(int(id))
     
     return app
 

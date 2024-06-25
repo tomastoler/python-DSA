@@ -3,12 +3,14 @@ from flask_login import login_required, current_user
 from ..models import Certificate
 from .. import db
 
+
 notes = Blueprint('views', __name__)
 
 @notes.route('/')
 @login_required
 def home():
-    notes = Certificate.query.filter_by(user_id=current_user.id)
+    user_id = current_user.id
+    notes = [certificate.to_dict() for certificate in Certificate.query.filter_by(user_id=user_id).all()]
     return { 'notes': notes }, 200
 
 

@@ -2,6 +2,7 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
+
 class Certificate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
@@ -21,4 +22,5 @@ class User(db.Model, UserMixin):
             "id": self.id,
             "name": self.name,
             "email": self.email,
+            "role": self.role
         }
