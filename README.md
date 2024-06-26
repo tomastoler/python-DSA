@@ -17,5 +17,7 @@ app
     > login
     > sign-up
     > logout
+    > certify
   > notes
+    > certify
 ```
