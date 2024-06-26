@@ -7,6 +7,13 @@ class Certificate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "date": self.date,
+            "user_id": self.user_id
+        }
 
 
 class User(db.Model, UserMixin):

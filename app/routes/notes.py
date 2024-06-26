@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for
+from flask import Blueprint, redirect, url_for, request
 from flask_login import login_required, current_user
 from ..models import Certificate
 from .. import db
@@ -14,12 +14,15 @@ def home():
     return { 'notes': notes }, 200
 
 
-@notes.route('/add-certificate', methods=['POST'])
+@notes.route('/certify', methods=['POST'])
 @login_required
 def add_certificate():
-    if not current_user['role'] == 'ADMIN':
+    if not current_user.role == 'ADMIN':
         return redirect(url_for('/auth/unauthorized'))
-    user_id = current_user['id']
+    
+    data = request.get_json()
+    
+    user_id = data['user_id']
     new_certificate = Certificate(user_id=user_id)
     db.session.add(new_certificate)
     db.session.commit()
